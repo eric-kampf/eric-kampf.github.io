@@ -1,1 +1,196 @@
-Hello World
+<html>
+  <style type="text/css">
+    #header {
+      font-family : arial;
+      font-size : 18pt;
+      font-weight: bold;
+    }
+    ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+      color: #aaaaaa;
+      font-style: italic;
+    }
+  </style>
+  <script src='https://code.responsivevoice.org/responsivevoice.js'></script>
+  <script type="text/javascript">
+
+    var words = [ 'mislead', 'misinform','misinterpret','miscommunicate',
+    'misunderstood','mistaken','antibody','antislavery','antitrust',
+    'antibacterial','antiaircraft','antibiotic','various','opposite',
+    'major','especially','actually','crescent','gibbous',
+    'divisor','dividend','quotient','hyperbole','personification',
+    'idiom' ];
+
+    var currentIndex = -1;
+    var maxIndex = words.length - 1;
+    var totalCorrect = 0;
+
+    function start() {
+        var header = document.getElementById('header');
+        header.innerHTML = header.innerHTML.replace('@count@', words.length);
+        sayIt("Hello Shawn. Time for your test.", "UK English Female");
+        setTimeout(function() { nextWord(); }, 4000);
+    }
+
+    function nextWord() {
+
+      if (currentIndex == maxIndex) {
+        var score = (totalCorrect / words.length) * 100.0;
+        score = Math.round(score);
+        alert('Your score: ' + score + " / 100");
+        return;
+      }
+
+      var word = words[++currentIndex];
+      var wordDiv = document.getElementById('words');
+      var newAnswerDiv = document.createElement('div');
+      newAnswerDiv.innerHTML = getInputHTML(word);
+      wordDiv.appendChild(newAnswerDiv);
+      speakWord(word);
+      var inputID = 'input' + currentIndex;
+      var input = document.getElementById(inputID);
+      input.focus();
+      window.scrollTo(0,document.body.scrollHeight);
+    }
+
+    function getInputHTML(word) {
+      var inputID = 'input' + currentIndex;
+      var spanID = 'result' + currentIndex;
+      var buttonID = 'button' + currentIndex;
+      var pad = (currentIndex <= 8) ? '&nbsp;' : '';
+      var html = '<div style="font-family:arial;font-size:14pt"><b>'+ pad + (currentIndex+1) +
+        ')</b>&nbsp;<input type="text" size="30" id="' + inputID + '"' + ' placeholder="Hit ENTER when done..."' +
+        ' onkeypress="if (event.keyCode==13) doAnswer(\'' +word+ '\', this.value, \'' +inputID+ '\',\'' +spanID+ '\',\'' +buttonID+ '\')"' +
+        ' style="background-color:#efefef;font-size:14pt;margin:5px"/>&nbsp;' +
+        '<button id="' + buttonID + '"' +
+        'style="font-family:arial;padding:6px;font-size:12pt;background-color:#dedede"' +
+        ' onclick="sayIt(\'' +word+ '\');document.getElementById(\'' +inputID+ '\').focus()">Repeat Word</button>' +
+        '&nbsp;<span id="' +spanID+ '" style="font-family:arial;font-size:12pt""></span>&nbsp;' +
+        '</div>';
+      return html;
+    }
+
+    function doAnswer(word, answer, inputID, spanID, buttonID) {
+      var input = document.getElementById(inputID);
+      var span = document.getElementById(spanID);
+      var button = document.getElementById(buttonID);
+      button.style.display = 'none';
+      var nextTime = 1000;
+      span.style.fontSize = '14pt';
+      if (word == answer) {
+        span.style.color = 'green';
+        span.innerHTML = '&#10004;';
+        playWoohoo();
+        totalCorrect++;
+      } else {
+        var formattedAnswer = formatCorrectAnswer(word, answer);
+        span.innerHTML = 'X [' +formattedAnswer+ ']';
+        span.style.color = 'red';
+        playDoh();
+        nextTime = 2000;
+      }
+      input.disabled = true;
+
+      setTimeout(function() { nextWord(); }, nextTime);
+    }
+
+    function formatCorrectAnswer(word, userAnswer) {
+
+        var formattedAnswer = word;
+
+        // find the first inccorect char and highlight it.
+        var firstBadIndex = -1;
+        for (var i=0; i<word.length; i++) {
+            if ((i+1) > userAnswer.length) {
+              break;
+            }
+            if (word[i] != userAnswer[i]) {
+                firstBadIndex = i;
+                break;
+            }
+        }
+    if (firstBadIndex == -1) {
+        firstBadIndex = userAnswer.length;
+    }
+        if (firstBadIndex != -1) {
+            formattedAnswer = '';
+            for (var i=0; i<word.length; i++) {
+                var letter = word[i];
+                if (i == firstBadIndex) {
+                  //formattedAnswer+= '<span style="font-weight:bold;text-decoration:underline;background-color:#eeeeee">';
+                  formattedAnswer+= '<span style="background-color:#dedede">';
+                }
+                formattedAnswer+= letter;
+            }
+            formattedAnswer+- '</span>';
+        }
+        return formattedAnswer;
+    }
+
+    var goodSoundIndex = -1;
+    var goodSounds = [
+      'http://www.matthewbarr.co.uk/sounds/woo_hoo.wav',
+      'http://static1.grsites.com/archive/sounds/cartoon/cartoon003.wav',
+      'http://static1.grsites.com/archive/sounds/cartoon/cartoon091.wav',
+      'http://static1.grsites.com/archive/sounds/cartoon/cartoon108.wav'
+    ];
+
+    var badSoundIndex = -1;
+    var badSounds = [
+      'http://static1.grsites.com/archive/sounds/cartoon/cartoon048.wav',
+      'http://static1.grsites.com/archive/sounds/cartoon/cartoon048.wav',
+      'http://static1.grsites.com/archive/sounds/cartoon/cartoon100.wav',
+      'http://static1.grsites.com/archive/sounds/cartoon/cartoon172.wav',
+    ];
+
+    function playWoohoo() {
+      var audio = new Audio();
+      var index = (++goodSoundIndex) % (goodSounds.length)
+      var randomIndex = getRandomInt(0, goodSounds.length);
+      audio.src = goodSounds[randomIndex];//'http://www.matthewbarr.co.uk/sounds/woo_hoo.wav';
+      audio.play();
+    }
+
+    function getRandomInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function playDoh() {
+      var audio = new Audio();
+      var index = (++badSoundIndex) % (badSounds.length);
+      var randomIndex = getRandomInt(0, badSounds.length);
+      audio.src = badSounds[randomIndex];//'http://www.matthewbarr.co.uk/sounds/woo_hoo.wav';
+      audio.play();
+    }
+
+    function speakWord(word, speaker) {
+      setTimeout(function() { sayIt("Spell", speaker), 100});
+      setTimeout(function() { sayIt(word, speaker), 1000});
+    }
+
+    function sayIt(word, speaker) {
+      if (!speaker) speaker = "US English Female";
+      responsiveVoice.speak(word, speaker);
+    }
+
+  </script>
+
+  <body>
+    <div id="header">
+      Spelling Test - @count@ words
+    </div>
+    <div id="words">
+    </div
+  </body>
+
+
+
+
+</html>
+
+<script type="text/javascript">
+  window.addEventListener('load', function() {
+      start();
+  });
+</script>
+
+
