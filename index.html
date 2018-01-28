@@ -144,8 +144,7 @@
 
     function playWoohoo() {
       var audio = new Audio();
-      var index = (++goodSoundIndex) % (goodSounds.length)
-      var randomIndex = getRandomInt(0, goodSounds.length);
+      var randomIndex = getRandomInt(0, goodSounds.length-1);
       audio.src = goodSounds[randomIndex];//'http://www.matthewbarr.co.uk/sounds/woo_hoo.wav';
       audio.play();
     }
@@ -156,8 +155,7 @@
 
     function playDoh() {
       var audio = new Audio();
-      var index = (++badSoundIndex) % (badSounds.length);
-      var randomIndex = getRandomInt(0, badSounds.length);
+      var randomIndex = getRandomInt(0, badSounds.length-1);
       audio.src = badSounds[randomIndex];//'http://www.matthewbarr.co.uk/sounds/woo_hoo.wav';
       audio.play();
     }
